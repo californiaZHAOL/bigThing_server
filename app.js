@@ -26,13 +26,29 @@ const app = express();
 // 配置跨域中间件
 app.use(require('cors')());
 
+// express-jwt用来解析jwt字符串
+const expressJWT = require('express-jwt');
+// 从另一个文件获得secretKey
+const loginAndRegisterHandle = require('./router_handle/loginAndRegisterHandle.js');
+let secretKey = loginAndRegisterHandle.secretKey;
+// 配置解析的中间件
+// 但是以api开头的不需要token解析
+// 这个中间件会挂载req.user属性
+app.use(expressJWT({secret: secretKey, algorithms: ['HS256']}).unless({path: [/^\/api\//]}));
+
 // 配置解析表单数据的中间件
 const parser = require('body-parser');
 app.use(parser.urlencoded({extended: false}));
 
 // 注册路由模块
-const router = require('./router/loginAndRegister');
+let router = require('./router/loginAndRegister');
 app.use(router);
+router = require('./router/user');
+app.use(router);
+
+// 配置错误处理中间件
+// express-jwt解析jwt字符串错误
+app.use(require('./router_error/userinfoError'));
 
 // 开启服务
 app.listen(80, () => {

@@ -111,7 +111,7 @@ function loginHandle(req, res){
 
     // 查询该用户是否存在
     // 如果存在就查询他的密码
-    db.query(`select password from users where username='${data.username}'`, (err, result) => {
+    db.query(`select password,id from users where username='${data.username}'`, (err, result) => {
         if(err){
             // 如果执行出错返回错误描述并且结束处理函数
             console.log(err.message);
@@ -141,7 +141,7 @@ function loginHandle(req, res){
                 // 参数：信息对象，秘钥，配置对象
                 // expiresIn: '3000s'表示token有效期3000s
                 // token要固定加上'Bearer '头
-                token: 'Bearer ' + jwt.sign({username: data.username}, secretKey, {expiresIn: '3000s'}) // 要发送给客户端的 token 字符串
+                token: 'Bearer ' + jwt.sign({id: result[0].id}, secretKey, {expiresIn: '3000s'}) // 要发送给客户端的 token 字符串
             });
         }
         else{
@@ -157,5 +157,6 @@ function loginHandle(req, res){
 // 暴露方法
 module.exports = {
     registerHandle,
-    loginHandle
+    loginHandle,
+    'secretKey': secretKey
 }
