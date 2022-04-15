@@ -26,6 +26,9 @@ const app = express();
 // 配置跨域中间件
 app.use(require('cors')());
 
+// 托管静态资源文件
+app.use('/uploads', express.static('./uploads'));
+
 // express-jwt用来解析jwt字符串
 const expressJWT = require('express-jwt');
 // 从另一个文件获得secretKey
@@ -39,11 +42,16 @@ app.use(expressJWT({secret: secretKey, algorithms: ['HS256']}).unless({path: [/^
 // 配置解析表单数据的中间件
 const parser = require('body-parser');
 app.use(parser.urlencoded({extended: false}));
+app.use(parser.json());
 
 // 注册路由模块
 let router = require('./router/loginAndRegister');
 app.use(router);
 router = require('./router/user');
+app.use(router);
+router = require('./router/articleCate');
+app.use(router);
+router = require('./router/articleList');
 app.use(router);
 
 // 配置错误处理中间件
